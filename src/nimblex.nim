@@ -60,7 +60,7 @@ when isMainModule:
 
         # Failed to install!
         echo result.output
-        quit(1)
+        quit(result.exitCode)
 
     # Now that it's installed, attempt to find and run the EXE again
     runAndExitIfPossible(pkgName, args)

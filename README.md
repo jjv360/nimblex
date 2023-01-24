@@ -5,13 +5,13 @@
 Like [npx](https://www.npmjs.com/package/npx) for Nim, this tool lets you run a package directly from the [Nimble Directory](https://nimble.directory). Packages will be installed if not found. Examples:
 
 ```bash
-# Start the Moe editor
-nimblex moe
+# Start a static HTTP server
+nimblex staticserver
 ```
 
 ```bash
-# Start a static HTTP server
-nimblex staticserver
+# Start the Moe editor
+nimblex moe
 ```
 
 ```bash

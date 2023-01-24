@@ -10,7 +10,7 @@ proc binForPackage(pkgName: string): string =
     try:
         let info = parseJson(execProcess(@["nimble", "dump", pkgName, "--json"].quoteShellCommand()))
         return info{"bin"}{0}.getStr()
-    except:
+    except Exception:
         return ""
 
 

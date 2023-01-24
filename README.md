@@ -19,7 +19,7 @@ nimblex staticserver
 nimblex c2nim --help
 ```
 
-This tool will first search for the binary/package name on the PATH, so it's safe to just prefix any command with `nimblex`:
+This tool will first search for the binary/package name on the PATH, so it's safe to just prefix any command with `nimblex` even if they don't come from Nim:
 
 ```bash
 nimblex echo "Hi" > file.txt

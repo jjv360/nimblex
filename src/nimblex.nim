@@ -3,7 +3,6 @@
 import std/os
 import std/osproc
 import std/terminal
-import std/sequtils
 import std/json
 
 # Get binary name from an installed package name
@@ -14,6 +13,26 @@ proc binForPackage(pkgName: string): string =
     except:
         return ""
 
+
+# Run command and exit
+proc runAndExitIfPossible(binName: string, args: seq[string]) =
+
+    # Stop if binName is empty
+    if binName == "":
+        return
+
+    # Find path to EXE
+    let exePath = findExe(binName)
+    if exePath == "":
+        return
+
+    # Prepare args
+    var newArgs = args
+    newArgs.insert(exePath, 0)
+
+    # Run it and return the exit code
+    let exitCode = execCmd(newArgs.quoteShellCommand())
+    quit(exitCode)
 
 
 when isMainModule:
@@ -26,18 +45,14 @@ when isMainModule:
 
     # First argument is always the package or binary name
     let pkgName = args[0]
+    args.delete(0)
 
     # Check if this app already exists, if so just run it
-    if findExe(pkgName) != "":
-        quit(execCmd(args.quoteShellCommand()))
+    runAndExitIfPossible(pkgName, args)
 
     # It doesn't, so maybe it's a package name and the binary name for this package is different? Attempt to read the `bin` field if so
-    let binName = binForPackage(pkgName)
-    if findExe(binName) != "":
-        var newArgs = args
-        newArgs.delete(0)
-        newArgs.insert(binName, 0)
-        quit(execCmd(newArgs.quoteShellCommand()))
+    var binName = binForPackage(pkgName)
+    runAndExitIfPossible(binName, args)
 
     # Still can't find it, it probably isn't installed... Attempt to install it via Nimble
     let result = execCmdEx(@["nimble", "install", "-y", pkgName].quoteShellCommand())
@@ -48,16 +63,12 @@ when isMainModule:
         quit(1)
 
     # Now that it's installed, attempt to find and run the EXE again
-    if findExe(pkgName) != "":
-        quit(execCmd(args.quoteShellCommand()))
+    runAndExitIfPossible(pkgName, args)
+    
 
     # Still can't find the EXE! Again maybe the package name is not the same as the binary name, so attempt to read the `bin` field
-    let binName2 = binForPackage(pkgName)
-    if findExe(binName2) != "":
-        var newArgs = args
-        newArgs.delete(0)
-        newArgs.insert(binName2, 0)
-        quit(execCmd(newArgs.quoteShellCommand()))
+    binName = binForPackage(pkgName)
+    runAndExitIfPossible(binName, args)
 
     # This binary just doesn't exist... Fail here
     stdout.styledWriteLine(fgRed, "Error: ", fgDefault, "Unable to find the binary for '" & pkgName & "'")
